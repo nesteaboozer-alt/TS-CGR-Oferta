@@ -4,7 +4,7 @@
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
-/* --- ZAKŁADKI (PASTYLKI) --- */
+
 .tsfl-tabs {
     display: flex;
     justify-content: center;
@@ -16,7 +16,7 @@
 .tsfl-tab {
     background-color: #F3F4F6;
     border: 1px solid #E5E7EB;
-    border-radius: 50px; /* Pastylka */
+    border-radius: 50px;
     padding: 10px 24px;
     font-size: 14px;
     font-weight: 600;
@@ -25,26 +25,31 @@
     transition: all 0.2s;
 }
 
-.tsfl-tab:hover {
-    background-color: #E5E7EB;
-    transform: translateY(-1px);
-}
-
 .tsfl-tab.active {
-    background-color: #FFD700; /* Żółty aktywny */
+    background-color: #FFD700;
     color: #111;
     border-color: #FFD700;
     box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
 }
 
-/* --- GRID --- */
+
 .tsfl-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 30px;
 }
 
-/* --- KARTA PRODUKTU --- */
+
+.tsfl-main-grid .tsfl-card {
+    display: none;
+}
+
+
+.tsfl-main-grid .tsfl-card.tsfl-is-visible {
+    display: flex;
+}
+
+
 .tsfl-card {
     background: #FFF;
     border-radius: 16px;
@@ -61,31 +66,22 @@
     box-shadow: 0 15px 30px rgba(0,0,0,0.1);
 }
 
-/* Obrazek - Wypełnienie */
 .tsfl-image-box {
+    position: relative;
     width: 100%;
-    height: 220px; /* Stała wysokość */
-    background-color: #F3F4F6; /* Szare tło pod spodem (na wypadek ładowania) */
-    display: block;
+    height: 220px;
+    background-color: #F3F4F6;
     overflow: hidden;
     border-bottom: 1px solid #E5E7EB;
-    padding: 0; /* USUNIĘTO padding, żeby zdjęcie dotykało krawędzi */
 }
 
 .tsfl-image-box img {
     width: 100%;
     height: 100%;
-    object-fit: cover; /* ZMIANA: Wypełnia cały obszar (może lekko przyciąć górę/dół) */
+    object-fit: cover;
     object-position: center;
-    transition: transform 0.5s ease;
 }
 
-/* Efekt zoom przy najechaniu na kartę */
-.tsfl-card:hover .tsfl-image-box img {
-    transform: scale(1.05);
-}
-
-/* Treść */
 .tsfl-content {
     padding: 20px;
     flex: 1;
@@ -100,7 +96,7 @@
     margin: 0 0 10px 0;
     color: #111;
     line-height: 1.4;
-    flex: 1; /* Dopycha cenę i przycisk do dołu */
+    flex: 1;
 }
 
 .tsfl-price {
@@ -110,29 +106,108 @@
     margin-bottom: 15px;
 }
 
-/* Guzik "KUP USŁUGĘ" */
 .tsfl-btn {
     display: inline-block;
     background-color: #FFD700;
-    color: #111;
+    color: #111 !important; 
     font-weight: 700;
     font-size: 13px;
     text-transform: uppercase;
     padding: 12px 20px;
     border-radius: 50px;
     text-decoration: none;
-    transition: background 0.2s;
     letter-spacing: 0.5px;
+    **transition: background 0.2s, color 0.2s;
 }
 
 .tsfl-btn:hover {
-    background-color: #FFC107;
-    color: #000;
+    background-color: #FFC107 !important;
+    color: #000 !important; 
 }
-/* Styl własnej etykiety ceny (zastępującej cenę Woo) */
-.tsfl-custom-label {
-    font-style: italic;
-    font-weight: 300;
-    color: #4b4a4a;
-    font-size: 14px;
+
+
+.tsfl-recommended-section {
+    background: #f9f9f9;
+    padding: 30px;
+    border-radius: 24px;
+    margin-bottom: 50px;
+    border: 1px solid #eee;
+}
+
+.tsfl-section-header {
+    text-align: center;
+    margin-bottom: 40px;
+    position: relative;
+}
+
+.tsfl-section-subtitle {
+    display: block;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: #888;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.tsfl-section-title {
+    font-size: 28px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #111;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+
+/* Subtelne linie po bokach napisu */
+.tsfl-section-title::before,
+.tsfl-section-title::after {
+    content: "";
+    height: 1px;
+    width: 60px;
+    background: #FFD700; /* Złoty akcent */
+    display: block;
+}
+
+
+.tsfl-card.is-featured {
+    border: 2px solid #FFD700;
+    display: flex !important;
+}
+
+
+.tsfl-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: #FFD700;
+    color: #111;
+    padding: 6px 14px;
+    border-radius: 50px;
+    font-size: 11px;
+    font-weight: 800;
+    z-index: 10;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+/* Poprawka scrolla dla desktopu (uwzględnia nav-bar) */
+@media (min-width: 1024px) {
+    #ts-oferta-filtry {
+        scroll-margin-top: 120px; /* Dostosuj tę wartość do wysokości Twojego menu */
+    }
+}
+
+/* Opcjonalnie dla mobile, jeśli tam też masz przyklejone menu */
+@media (max-width: 1023px) {
+    #ts-oferta-filtry {
+        scroll-margin-top: 80px; 
+    }
+}
+
+/* Włączenie płynnego przewijania dla całej strony (jeśli motyw go nie ma) */
+html {
+    scroll-behavior: smooth;
 }

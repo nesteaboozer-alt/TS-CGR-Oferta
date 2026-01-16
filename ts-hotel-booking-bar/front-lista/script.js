@@ -1,23 +1,14 @@
 jQuery(document).ready(function($){
     
-    // Proste filtrowanie po kliknięciu w zakładkę
-    $('.tsfl-tab').on('click', function(){
-        // 1. Klasy
-        $('.tsfl-tab').removeClass('active');
-        $(this).addClass('active');
-
-        // 2. Slug
-        var targetSlug = $(this).data('cat');
-
-        // 3. Pokaż/Ukryj kafelki
-        $('.tsfl-card').each(function(){
-            var productCats = $(this).data('categories'); // string np. "posilki,basen"
+    // Funkcja filtrująca
+    function filterProducts(targetSlug) {
+        // Filtrujemy tylko produkty w głównej sekcji
+        $('.tsfl-main-grid .tsfl-card').each(function(){
+            var productCats = $(this).data('categories') || "";
             
-            // Jeśli zakładka nie ma sluga (np. Wszystkie) -> Pokaż
             if ( targetSlug === '' ) {
                 $(this).fadeIn(200);
             } else {
-                // Szukamy sluga w stringu kategorii (z przecinkami dla pewności)
                 if ( (',' + productCats + ',').indexOf(',' + targetSlug + ',') !== -1 ) {
                     $(this).fadeIn(200);
                 } else {
@@ -25,14 +16,17 @@ jQuery(document).ready(function($){
                 }
             }
         });
-    });
-
-    // Auto-start (kliknij pierwszą)
-    var $activeTab = $('.tsfl-tab.active');
-    if($activeTab.length) {
-        $activeTab.trigger('click');
-    } else {
-        $('.tsfl-tab').first().trigger('click');
     }
 
+    // Obsługa kliknięcia w zakładkę
+    $('.tsfl-tab').on('click', function(){
+        $('.tsfl-tab').removeClass('active');
+        $(this).addClass('active');
+
+        var targetSlug = $(this).data('cat');
+        filterProducts(targetSlug);
+    });
+
+    // STARTOWA INICJALIZACJA PRZEZ JS JEST USUNIĘTA 
+    // PHP zajęło się renderowaniem domyślnej zakładki, więc JS czeka na interakcję.
 });
