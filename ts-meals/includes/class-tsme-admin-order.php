@@ -52,6 +52,9 @@ class TSME_Admin_Order {
                 continue;
             }
 
+            $display_code = $item->get_meta( '_tsme_code', true );
+            $code_row     = TSME_Codes::get_code_row_by_raw( $display_code );
+
             $meal_items[] = array(
                 'name'      => $item->get_name(),
                 'object'    => $item->get_meta( '_tsme_object', true ),
@@ -60,7 +63,8 @@ class TSME_Admin_Order {
                 'stay_to'   => $item->get_meta( '_tsme_stay_to', true ),
                 'adults'    => $item->get_meta( '_tsme_adults', true ),
                 'children'  => $item->get_meta( '_tsme_children', true ),
-                'code'      => $item->get_meta( '_tsme_code', true ),
+                'code'      => $display_code,
+                'status'    => $code_row ? $code_row['status'] : 'new',
             );
         }
 
@@ -88,6 +92,7 @@ class TSME_Admin_Order {
                         <th>Pobyt</th>
                         <th>Osoby</th>
                         <th>Kod awaryjny</th>
+                        <th>Status</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -120,6 +125,13 @@ class TSME_Admin_Order {
                                 echo '<em>brak</em>';
                             }
                             ?>
+                        </td>
+                        <td>
+                            <?php if ( $mi['status'] === 'void' ) : ?>
+                                <span style="color:#ef4444;font-weight:bold;">UNIEWAŻNIONY</span>
+                            <?php else : ?>
+                                <span style="color:#10b981;">Aktywny</span>
+                            <?php endif; ?>
                         </td>
                     </tr>
                 <?php endforeach; ?>

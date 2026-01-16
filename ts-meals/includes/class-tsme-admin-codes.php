@@ -30,6 +30,7 @@ class TSME_Admin_Codes {
         );
 
         add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ) );
+        add_action( 'wp_ajax_tsme_void_code', array( __CLASS__, 'ajax_void_code' ) );
     }
 
 
@@ -84,6 +85,11 @@ class TSME_Admin_Codes {
             TSME_VER,
             true
         );
+
+        wp_localize_script( 'tsme-admin', 'tsme_admin', array(
+            'ajaxurl' => admin_url( 'admin-ajax.php' ),
+            'nonce'   => wp_create_nonce( 'tsme_admin_void' )
+        ) );
     }
 
     /**
@@ -969,6 +975,15 @@ class TSME_Admin_Codes {
                                                     </button>
                                                 <?php endif; ?>
 
+                                                <button
+                                                    type="button"
+                                                    class="button button-small tsme-void-btn"
+                                                    data-id="<?php echo (int) $row['id']; ?>"
+                                                    <?php disabled( $status, 'void' ); ?>
+                                                >
+                                                    <?php esc_html_e( 'Unieważnij', 'ts-hotel-meals' ); ?>
+                                                </button>
+
                                                 <a
                                                     href="<?php echo esc_url( $delete_url ); ?>"
                                                     class="button button-small"
@@ -1482,6 +1497,23 @@ class TSME_Admin_Codes {
         }
 
         fclose( $output );
+    }
+
+    /**
+     * AJAX: Unieważnienie kodu.
+     */
+    public static function ajax_void_code() {
+        check_ajax_referer( 'tsme_admin_void', 'nonce' );
+        if ( ! current_user_can( 'manage_woocommerce' ) ) {
+            wp_send_json_error();
+        }
+
+        $code_id = isset( $_POST['code_id'] ) ? absint( $_POST['code_id'] ) : 0;
+        if ( $code_id && TSME_Codes::void_code_by_id( $code_id ) ) {
+            wp_send_json_success();
+        }
+
+        wp_send_json_error();
     }
 }
 

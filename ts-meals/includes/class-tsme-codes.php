@@ -363,4 +363,32 @@ class TSME_Codes {
             substr( $random_part, 8, 4 )
         );
     }
+
+    /**
+     * Unieważnia pojedynczy rekord kodu po jego ID.
+     */
+    public static function void_code_by_id( $id ) {
+        global $wpdb;
+        return $wpdb->update(
+            self::get_table_name(),
+            array( 'status' => 'void' ),
+            array( 'id' => (int) $id ),
+            array( '%s' ),
+            array( '%d' )
+        );
+    }
+
+    /**
+     * Unieważnia kody posiłków powiązane z konkretną pozycją zamówienia.
+     */
+    public static function void_item_codes( $item_id ) {
+        global $wpdb;
+        return $wpdb->update(
+            self::get_table_name(),
+            array( 'status' => 'void' ),
+            array( 'order_item_id' => (int) $item_id ),
+            array( '%s' ),
+            array( '%d' )
+        );
+    }
 }
