@@ -1,0 +1,138 @@
+.tsfl-wrapper {
+    max-width: 1200px;
+    margin: 40px auto;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* --- ZAKŁADKI (PASTYLKI) --- */
+.tsfl-tabs {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 40px;
+}
+
+.tsfl-tab {
+    background-color: #F3F4F6;
+    border: 1px solid #E5E7EB;
+    border-radius: 50px; /* Pastylka */
+    padding: 10px 24px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.tsfl-tab:hover {
+    background-color: #E5E7EB;
+    transform: translateY(-1px);
+}
+
+.tsfl-tab.active {
+    background-color: #FFD700; /* Żółty aktywny */
+    color: #111;
+    border-color: #FFD700;
+    box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+}
+
+/* --- GRID --- */
+.tsfl-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 30px;
+}
+
+/* --- KARTA PRODUKTU --- */
+.tsfl-card {
+    background: #FFF;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid #E5E7EB;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.tsfl-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+}
+
+/* Obrazek - Wypełnienie */
+.tsfl-image-box {
+    width: 100%;
+    height: 220px; /* Stała wysokość */
+    background-color: #F3F4F6; /* Szare tło pod spodem (na wypadek ładowania) */
+    display: block;
+    overflow: hidden;
+    border-bottom: 1px solid #E5E7EB;
+    padding: 0; /* USUNIĘTO padding, żeby zdjęcie dotykało krawędzi */
+}
+
+.tsfl-image-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* ZMIANA: Wypełnia cały obszar (może lekko przyciąć górę/dół) */
+    object-position: center;
+    transition: transform 0.5s ease;
+}
+
+/* Efekt zoom przy najechaniu na kartę */
+.tsfl-card:hover .tsfl-image-box img {
+    transform: scale(1.05);
+}
+
+/* Treść */
+.tsfl-content {
+    padding: 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+}
+
+.tsfl-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0 0 10px 0;
+    color: #111;
+    line-height: 1.4;
+    flex: 1; /* Dopycha cenę i przycisk do dołu */
+}
+
+.tsfl-price {
+    font-size: 15px;
+    color: #555;
+    font-weight: 500;
+    margin-bottom: 15px;
+}
+
+/* Guzik "KUP USŁUGĘ" */
+.tsfl-btn {
+    display: inline-block;
+    background-color: #FFD700;
+    color: #111;
+    font-weight: 700;
+    font-size: 13px;
+    text-transform: uppercase;
+    padding: 12px 20px;
+    border-radius: 50px;
+    text-decoration: none;
+    transition: background 0.2s;
+    letter-spacing: 0.5px;
+}
+
+.tsfl-btn:hover {
+    background-color: #FFC107;
+    color: #000;
+}
+/* Styl własnej etykiety ceny (zastępującej cenę Woo) */
+.tsfl-custom-label {
+    font-style: italic;
+    font-weight: 300;
+    color: #4b4a4a;
+    font-size: 14px;
+}

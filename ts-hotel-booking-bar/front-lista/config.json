@@ -1,0 +1,27 @@
+[
+    {
+        "id": "posilki",
+        "label": "Posiłki",
+        "cat_slug": "posilki"
+    },
+    {
+        "id": "saunarium",
+        "label": "Saunarium",
+        "cat_slug": "saunarium"
+    },
+        {
+        "id": "basen-panorama",
+        "label": "Basen Panorama",
+        "cat_slug": "basen-panorama"
+    },
+    {
+        "id": "basen-czarna-perla",
+        "label": "Basen Czarna Perła",
+        "cat_slug": "basen-czarna-perla"
+    },
+    {
+        "id": "zabiegi",
+        "label": "Zabiegi SPA",
+        "cat_slug": "zabiegi"
+    }
+]

@@ -1,0 +1,39 @@
+.tsk-wrap{max-width:1080px}
+.tsk-term{display:flex;gap:8px;margin:12px 0}
+#tsk-code{flex:1}
+.tsk-result{margin-top:12px;padding:12px;border:1px solid #ccd0d4;background:#fff}
+.tsk-ok{border-color:#22c55e;background:#f0fff7}
+.tsk-err{border-color:#ef4444;background:#fff5f5}
+.tsk-chip{display:inline-block;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700;line-height:1}
+.tsk-chip--active{background:#ecfdf5;color:#065f46}
+.tsk-chip--running{background:#eff6ff;color:#1e40af}
+.tsk-chip--exhausted{background:#fef3c7;color:#92400e}
+.tsk-chip--expired{background:#fee2e2;color:#991b1b}
+.tsk-chip--void{background:#e5e7eb;color:#374151}
+.tsk-actions .button.button-small{margin-right:4px;margin-bottom:4px}
+.tsk-table td code{font-weight:700}
+
+/* 0.4.4 wider table + actions layout + modal */
+.tsk-wrap{max-width:1280px}
+.tsk-table{width:100%}
+.tsk-actions-group{display:flex;flex-wrap:wrap;gap:6px}
+/* Modal */
+.tsk-modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:100000}
+.tsk-modal{background:#fff;border:1px solid #cbd5e1;border-radius:12px;max-width:520px;width:100%;padding:16px}
+.tsk-modal h2{margin:0 0 10px}
+.tsk-modal .row{margin-bottom:10px}
+.tsk-modal .row label{display:block;margin-bottom:4px;font-weight:600}
+.tsk-modal .row input{width:100%}
+
+/* 0.4.4a force full width */
+.tsk-wrap{max-width:none;width:100%}
+.tsk-table{width:100%}
+
+/* 0.4.4c modern buttons */
+.tsk-actions-group .button.tsk-btn{border-radius:10px; border:1px solid #e5e7eb; background:#fff; color:#111; box-shadow:none; padding:4px 10px; font-weight:600}
+.tsk-actions-group .button.tsk-btn:hover{transform:translateY(-1px); box-shadow:0 2px 6px rgba(0,0,0,.06)}
+.tsk-btn--primary{background:#111 !important; color:#fff !important; border-color:#111 !important}
+.tsk-btn--ghost{background:#f8fafc !important}
+.tsk-btn--muted{background:#f3f4f6 !important}
+.tsk-btn--ok{background:#e6f6ef !important; color:#065f46 !important; border-color:#bbedd9 !important}
+.tsk-btn--danger{background:#fef2f2 !important; color:#991b1b !important; border-color:#fecaca !important}

@@ -1,0 +1,214 @@
+/* Podstawowy wrapper – odpowiednik .tsk-wrap, tylko dla TS Meals */
+.tsme-wrap {
+    max-width: 1200px;
+    margin: 24px auto 40px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: #0f172a;
+}
+
+.tsme-wrap h1 {
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0 0 12px;
+}
+
+.tsme-wrap p {
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+/* Pasek zakładek u góry */
+.tsme-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.tsme-tabs__link {
+    border-radius: 999px;
+    padding: 6px 14px;
+    font-size: 13px;
+    border: 1px solid transparent;
+    background: #f9fafb;
+    color: #4b5563;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.tsme-tabs__link:hover {
+    background: #e5e7eb;
+}
+
+.tsme-tabs__link--active {
+    background: #111827;
+    color: #ffffff;
+}
+
+/* Badge w zakładkach (np. liczba dzisiejszych posiłków) */
+.tsme-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 18px;
+    padding: 0 6px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    background: #e5e7eb;
+    color: #111827;
+}
+
+/* Grid kart jak w TS Karnety */
+.tsme-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-top: 16px;
+}
+
+.tsme-col-main {
+    flex: 1 1 480px;
+    min-width: 0;
+}
+
+.tsme-col-side {
+    flex: 1 1 260px;
+    max-width: 320px;
+    min-width: 260px;
+}
+
+/* Karty */
+.tsme-card {
+    background: #ffffff;
+    border-radius: 18px;
+    padding: 16px 18px;
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+    border: 1px solid #e5e7eb;
+}
+
+.tsme-card h2 {
+    font-size: 16px;
+    margin: 0 0 6px;
+}
+
+.tsme-card h3 {
+    font-size: 14px;
+    margin: 0 0 4px;
+}
+
+/* Opisy pod nagłówkami */
+.tsme-card__meta {
+    font-size: 12px;
+    color: #6b7280;
+    margin-bottom: 12px;
+}
+
+/* Pola formularza */
+.tsme-field {
+    margin-bottom: 10px;
+}
+
+.tsme-field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: #4b5563;
+}
+
+.tsme-field input[type="text"] {
+    width: 100%;
+    max-width: 420px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    border: 1px solid #d1d5db;
+    font-size: 13px;
+}
+
+.tsme-field input[type="text"]:focus {
+    outline: none;
+    border-color: #111827;
+    box-shadow: 0 0 0 1px #1118270d;
+}
+
+/* Wyniki sprawdzania kodu */
+.tsme-alert {
+    margin-top: 12px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+}
+
+.tsme-alert--error {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.tsme-alert--success {
+    background: #ecfdf5;
+    color: #064e3b;
+}
+
+.tsme-alert__grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 2px 12px;
+    margin-top: 4px;
+    font-size: 12px;
+}
+
+/* Statystyki z boku */
+.tsme-stats-list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.tsme-stat {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #4b5563;
+}
+
+.tsme-stat span:first-child {
+    font-weight: 500;
+}
+
+.tsme-stat span:last-child {
+    font-weight: 600;
+}
+
+/* Info o wersji beta */
+.tsme-footer-note {
+    margin-top: 20px;
+    font-size: 11px;
+    color: #9ca3af;
+}
+
+/* Panele zakładek (na razie jedna zakładka aktywna) */
+.tsme-tab-panel {
+    display: none;
+}
+
+.tsme-tab-panel--active {
+    display: block;
+}
+
+/* Responsywność */
+@media (max-width: 900px) {
+    .tsme-col-side {
+        max-width: 100%;
+    }
+}
+.tsme-card--wide {
+    margin-top: 16px;
+}
