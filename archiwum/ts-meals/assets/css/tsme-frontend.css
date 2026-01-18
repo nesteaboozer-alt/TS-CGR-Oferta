@@ -1,0 +1,241 @@
+/* --- TS HOTEL MEALS - FINAL CSS v3.8 --- */
+
+#tsme-app-root {
+    all: initial;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    display: block;
+    width: 100%;
+    background-color: #F5F7FA;
+    padding: 40px 20px 100px;
+    min-height: 80vh;
+    box-sizing: border-box;
+    color: #1F2937;
+    line-height: 1.5;
+}
+
+#tsme-app-root * { box-sizing: border-box; }
+
+/* Layout */
+#tsme-app-root .tsme-layout-container {
+    max-width: 750px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* Hero */
+#tsme-app-root .tsme-hero-header { text-align: center; margin-bottom: 30px; }
+#tsme-app-root h1 { font-size: 32px; font-weight: 700; margin: 0 0 10px; color: #111827; }
+
+/* Intro */
+#tsme-app-root .tsme-intro-content {
+    padding: 30px 30px 10px 30px; text-align: center; font-size: 15px; color: #4B5563; 
+    border-bottom: 1px solid #E5E7EB; background-color: #FFF;
+}
+#tsme-app-root .tsme-intro-content p:last-child { margin: 0; }
+
+/* Card */
+#tsme-app-root .tsme-booking-card {
+    background: #FFF;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    border: 1px solid #E5E7EB;
+    overflow: hidden;
+    margin-bottom: 40px;
+}
+
+/* THEME OVERRIDES */
+#tsme-app-root .tsme-woo-messages:empty { display: none; }
+#tsme-app-root .tsme-woo-messages .row,
+#tsme-app-root .tsme-woo-messages .col-lg-12,
+#tsme-app-root .tsme-woo-messages .main-content-area {
+    margin: 0 !important; padding: 0 !important; width: 100% !important; 
+    flex: none !important; max-width: none !important; min-height: 0 !important;
+}
+#tsme-app-root .woocommerce-notices-wrapper { padding: 0; margin: 0; }
+#tsme-app-root .woocommerce-message, 
+#tsme-app-root .woocommerce-error, 
+#tsme-app-root .woocommerce-info {
+    margin: 20px 30px 0 30px !important; border-radius: 6px;
+}
+
+/* LISTA POKOI (Nowy nagłówek) */
+#tsme-app-root #tsme-rooms-list-header {
+    padding: 15px 30px; background-color: #F0FDF4; border-bottom: 1px solid #DCFCE7;
+    display: flex; justify-content: space-between; align-items: center;
+}
+#tsme-app-root #tsme-rooms-list-header h4 {
+    margin: 0; font-size: 13px; font-weight: 700; text-transform: uppercase; color: #15803d;
+}
+#tsme-app-root #tsme-clear-all-btn {
+    background: none; border: none; color: #991B1B; font-size: 12px; cursor: pointer; text-decoration: underline; padding: 0;
+}
+
+#tsme-app-root #tsme-added-rooms-list {
+    background-color: #FFFFFF; border-bottom: 1px solid #E5E7EB;
+}
+#tsme-app-root .tsme-room-success-item {
+    padding: 15px 30px; border-bottom: 1px solid #F3F4F6; display: flex; align-items: center; justify-content: space-between; animation: fadeIn 0.3s ease;
+}
+#tsme-app-root .tsme-room-number-badge {
+    background: #DCFCE7; color: #166534; font-size: 11px; font-weight: 700; padding: 2px 6px; border-radius: 4px; margin-right: 10px;
+}
+#tsme-app-root .tsme-room-remove {
+    width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;
+    border-radius: 50%; color: #9CA3AF; cursor: pointer; transition: all 0.2s; font-size: 18px;
+}
+#tsme-app-root .tsme-room-remove:hover { background-color: #FEF2F2; color: #EF4444; }
+
+/* Prompt */
+#tsme-app-root #tsme-next-room-prompt {
+    display: none; background: #FEF9C3; color: #854D0E; border-bottom: 1px solid #FEF08A; padding: 15px 30px; font-size: 14px; border-left: 5px solid #EAB308;
+}
+
+/* Form Header */
+#tsme-app-root .tsme-form-header { padding: 20px 30px; background: #F9FAFB; border-bottom: 1px solid #E5E7EB; }
+#tsme-app-root .tsme-form-header h3 { margin: 0; font-size: 18px; font-weight: 600; color: #111827; }
+#tsme-app-root .tsme-form-header p { margin: 0; font-size: 14px; color: #6B7280; }
+
+#tsme-app-root .tsme-form-body { padding: 30px; }
+
+/* Grid */
+#tsme-app-root .tsme-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+#tsme-app-root .tsme-col-full { grid-column: 1 / -1; }
+#tsme-app-root .tsme-col-half { grid-column: span 1; }
+
+/* Inputs */
+#tsme-app-root .tsme-label { display: block; font-size: 12px; font-weight: 600; color: #4B5563; margin-bottom: 6px; text-transform: uppercase; }
+#tsme-app-root input, #tsme-app-root select {
+    width: 100%; height: 48px; padding: 0 12px; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 15px; background: #fff; color: #111827; outline: none;
+}
+#tsme-app-root input:focus, #tsme-app-root select:focus { border-color: #D4A373; box-shadow: 0 0 0 3px rgba(212, 163, 115, 0.2); }
+
+/* Messages */
+#tsme-app-root #tsme-validation-msg {
+    display: none; background: #FEF2F2; color: #991B1B; border: 1px solid #FCA5A5; padding: 12px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; font-weight: 500;
+}
+
+/* AJAX Summary */
+#tsme-app-root #tsme-ajax-summary { margin-top: 20px; padding-top: 20px; border-top: 1px solid #E5E7EB; display: none; text-align: right; }
+#tsme-app-root #tsme-ajax-price { font-size: 20px; font-weight: 700; color: #111827; }
+#tsme-app-root .tsme-info-msg { background: #EFF6FF; color: #1E40AF; border: 1px solid #DBEAFE; padding: 10px; border-radius: 6px; font-size: 13px; margin-bottom: 10px; text-align: left; }
+
+/* Footer Buttons */
+#tsme-app-root .tsme-form-footer { 
+    background: #F9FAFB; 
+    padding: 20px 30px; 
+    border-top: 1px solid #E5E7EB; 
+    display: flex; 
+    gap: 15px; 
+    justify-content: flex-end; 
+}
+
+/* GLOBALNY STYL GUZIKÓW TSME (Pigułki) */
+#tsme-app-root .tsme-btn {
+    height: 48px;
+    border: none;
+    border-radius: 50px; /* Pigułka */
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    padding: 0 30px;
+    line-height: 1;
+    text-decoration: none;
+    flex: 1; /* Równe szerokości w footerze */
+}
+
+/* Stan zablokowany */
+#tsme-app-root .tsme-btn.tsme-disabled {
+    opacity: 0.5; 
+    cursor: not-allowed !important; 
+    filter: grayscale(100%);
+}
+
+/* Primary (Do kasy / Zatwierdź) - Żółty */
+#tsme-app-root .tsme-btn-primary {
+    background-color: #fedb32;
+    color: #111;
+}
+#tsme-app-root .tsme-btn-primary:hover:not(.tsme-disabled) {
+    background-color: #e5c52e;
+    transform: translateY(-2px);
+    color: #000;
+}
+
+/* Outline (Dodaj kolejny / Anuluj) - Biały z ramką */
+#tsme-app-root .tsme-btn-outline {
+    background-color: #FFF;
+    border: 2px solid #E5E7EB;
+    color: #111;
+}
+#tsme-app-root .tsme-btn-outline:hover:not(.tsme-disabled) {
+    border-color: #fedb32;
+    transform: translateY(-2px);
+}
+
+/* --- MODALS (Shared Styles) --- */
+#tsme-success-modal, 
+#tsme-abandon-modal {
+    display: none; 
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(4px); z-index: 999999;
+    align-items: center; justify-content: center;
+}
+
+#tsme-success-modal .tsme-modal-content, 
+#tsme-abandon-modal .tsme-modal-content {
+    background: #FFF; width: 90%; max-width: 400px; padding: 30px; 
+    border-radius: 16px; text-align: center; position: relative; margin: auto;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+#tsme-success-modal .tsme-modal-icon,
+#tsme-abandon-modal .tsme-modal-icon { font-size: 40px; margin-bottom: 15px; }
+
+#tsme-success-modal h3, #tsme-abandon-modal h3 { margin: 0 0 10px; font-size: 22px; color: #111827; }
+#tsme-success-modal p, #tsme-abandon-modal p { margin: 0 0 25px; color: #6B7280; }
+
+#tsme-success-modal .tsme-modal-actions,
+#tsme-abandon-modal .tsme-modal-actions { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 12px; 
+    margin-top: 20px;
+}
+
+/* Wymuś pełną szerokość guzików w modalu */
+#tsme-success-modal .tsme-btn,
+#tsme-abandon-modal .tsme-btn {
+    width: 100%;
+    flex: none;
+}
+
+/* Loader */
+#tsme-loading-overlay {
+    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(255,255,255,0.8); z-index: 99999; align-items: center; justify-content: center;
+}
+#tsme-loading-overlay .tsme-spinner {
+    width: 40px; height: 40px; border: 4px solid #E5E7EB; border-top: 4px solid #D4A373; border-radius: 50%; animation: spin 1s linear infinite;
+}
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+/* Tabs */
+#tsme-app-root .tsme-tabs-wrapper { margin-top: 40px; }
+#tsme-app-root .woocommerce-tabs ul.tabs { padding: 0; margin: 0 0 20px; list-style: none; display: flex; gap: 10px; border-bottom: 1px solid #E5E7EB; }
+#tsme-app-root .woocommerce-tabs ul.tabs li { border: 1px solid transparent; border-radius: 8px 8px 0 0; margin: 0; }
+#tsme-app-root .woocommerce-tabs ul.tabs li a { display: block; padding: 10px 20px; text-decoration: none; color: #4B5563; font-weight: 600; font-size: 14px; }
+#tsme-app-root .woocommerce-tabs ul.tabs li.active a { color: #111827; border-bottom: 2px solid #D4A373; }
+#tsme-app-root .woocommerce-Tabs-panel { background: #FFF; padding: 30px; border-radius: 12px; border: 1px solid #E5E7EB; font-size: 15px; color: #374151; }
+
+@media (max-width: 600px) {
+    #tsme-app-root .tsme-grid { grid-template-columns: 1fr; }
+    #tsme-app-root .tsme-col-half { grid-column: span 1; }
+    #tsme-app-root .tsme-form-footer { flex-direction: column-reverse; }
+    #tsme-app-root .woocommerce-tabs ul.tabs { flex-wrap: wrap; }
+}

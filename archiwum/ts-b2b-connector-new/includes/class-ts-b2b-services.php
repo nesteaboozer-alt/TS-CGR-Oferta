@@ -12,9 +12,6 @@ class TS_B2B_Services {
         add_action( 'init', array( __CLASS__, 'add_b2b_endpoint' ) );
         add_action( 'woocommerce_account_' . self::ENDPOINT . '_endpoint', array( __CLASS__, 'render_b2b_services_page' ) );
         add_action( 'wp_ajax_' . self::AJAX_ACTION_CANCEL, array( __CLASS__, 'ajax_handle_cancellation' ) );
-
-        // NOWOŚĆ: Dopisek przy produktach w podglądzie zamówienia
-        add_filter( 'woocommerce_order_item_name', array( __CLASS__, 'mark_cancelled_items_in_order' ), 10, 2 );
     }
 
     private static function is_strictly_b2b() {
@@ -73,24 +70,16 @@ class TS_B2B_Services {
             echo '<ul style="margin: 0 0 15px 0; padding: 0; list-style: none;">';
             
             // 1. Wypisz wszystkie produkty z zamówienia (żebyś widział, że zamówienie działa)
-            // 1. Wypisz wszystkie produkty z zamówienia (żebyś widział, że zamówienie działa)
             foreach ( $order->get_items() as $item ) {
-                $p_id = $item->get_product_id();
-                $is_meal = ( class_exists('TSME_Frontend') && TSME_Frontend::is_meal_product($p_id) );
-
-                echo '<li style="padding: 5px 0; border-bottom: 1px dashed #eee; display: flex; justify-content: space-between; align-items: center;">';
-                echo '<span><strong>' . esc_html($item->get_name()) . '</strong> (x' . $item->get_quantity() . ')</span>';
-                
-                if ( ! $is_meal ) {
-                    echo '<small style="color:#999; font-style: italic;">Nie podlega anulacji</small>';
-                }
+                echo '<li style="padding: 5px 0; border-bottom: 1px dashed #eee;">';
+                echo '<strong>' . esc_html($item->get_name()) . '</strong> (x' . $item->get_quantity() . ')';
                 echo '</li>';
             }
             echo '</ul>';
 
-            // 2. Pobierz kody Posiłków (włączając void, aby pokazać info o anulowaniu)
+            // 2. Pobierz kody Posiłków
             $meals = $wpdb->get_results( $wpdb->prepare(
-                "SELECT * FROM $meals_table WHERE order_id = %d ORDER BY stay_from ASC",
+                "SELECT * FROM $meals_table WHERE order_id = %d AND status != 'void' ORDER BY stay_from ASC",
                 $order_id
             ), ARRAY_A );
 
@@ -99,33 +88,16 @@ class TS_B2B_Services {
                 echo '<table class="shop_table shop_table_responsive" style="margin: 0; border: none;">';
                 echo '<thead><tr><th>Rodzaj</th><th>Obiekt</th><th>Data</th><th>Akcja</th></tr></thead><tbody>';
                 foreach ( $meals as $row ) {
-                    $is_void      = ( $row['status'] === 'void' );
-                    $stay_from_ts = strtotime( $row['stay_from'] );
-                    $deadline_ts  = $stay_from_ts - ( 7 * DAY_IN_SECONDS );
-                    $now          = time();
-                    $can_cancel   = ( ! $is_void && $now < $deadline_ts );
-
+                    $can_cancel = ( (strtotime( $row['stay_from'] ) - time()) > 7 * DAY_IN_SECONDS );
                     echo '<tr>';
                     echo '<td data-title="Rodzaj">' . esc_html($row['meal_type']) . '</td>';
                     echo '<td data-title="Obiekt">' . esc_html($row['object_label']) . '</td>';
                     echo '<td data-title="Data">' . esc_html($row['stay_from']) . '</td>';
                     echo '<td data-title="Akcja">';
-
-                    if ( $is_void ) {
-                        echo '<span style="color:#d32f2f; font-weight:bold;">Usługa anulowana</span>';
-                    } elseif ( $can_cancel ) {
-                        $diff  = $deadline_ts - $now;
-                        $days  = floor( $diff / DAY_IN_SECONDS );
-                        $hours = floor( ($diff % DAY_IN_SECONDS) / HOUR_IN_SECONDS );
-                        
-                        $timer = "Możesz anulować jeszcze przez: ";
-                        if ($days > 0) $timer .= $days . " dni ";
-                        $timer .= $hours . " godz.";
-
-                        echo '<div style="margin-bottom:5px;"><button class="button ts-cancel" data-id="'.(int)$row['id'].'" data-nonce="'.esc_attr($nonce).'">Anuluj usługę</button></div>';
-                        echo '<small style="color:#2e7d32; display:block; line-height:1.2;">' . $timer . '</small>';
+                    if ( $can_cancel ) {
+                        echo '<button class="button ts-cancel" data-id="'.(int)$row['id'].'" data-nonce="'.esc_attr($nonce).'">Anuluj usługę</button>';
                     } else {
-                        echo '<small style="color:#999;">Nie można anulować (termin minął)</small>';
+                        echo '<small style="color:#999;">Anulacja niedostępna (< 7 dni)</small>';
                     }
                     echo '</td></tr>';
                 }
@@ -135,22 +107,20 @@ class TS_B2B_Services {
             // 3. Pobierz kody Karnetów (jeśli tabela istnieje)
             $table_exists = $wpdb->get_var("SHOW TABLES LIKE '$tickets_table'");
             if ( $table_exists ) {
-                // Pobieramy wszystkie rekordy dla danego zamówienia
                 $tickets = $wpdb->get_results( $wpdb->prepare(
-                    "SELECT * FROM $tickets_table WHERE order_id = %d",
+                    "SELECT * FROM $tickets_table WHERE order_id = %d AND status != 'void'",
                     $order_id
                 ), ARRAY_A );
 
                 if ( ! empty($tickets) ) {
                     echo '<h4 style="margin-top: 20px; font-size: 0.9em; text-transform: uppercase; color: #777;">Karnety:</h4>';
                     echo '<table class="shop_table shop_table_responsive" style="margin: 0; border: none;">';
-                    echo '<thead><tr><th>Kod</th><th>Status</th><th>Ważność</th><th>Akcja</th></tr></thead><tbody>';
+                    echo '<thead><tr><th>Kod</th><th>Status</th><th>Ważność</th></tr></thead><tbody>';
                     foreach ( $tickets as $row ) {
                         echo '<tr>';
                         echo '<td data-title="Kod"><code>' . esc_html($row['code']) . '</code></td>';
                         echo '<td data-title="Status">' . esc_html($row['status']) . '</td>';
                         echo '<td data-title="Ważność">' . esc_html($row['valid_to'] ?? 'N/A') . '</td>';
-                        echo '<td data-title="Akcja"><small style="color:#999;">Nie podlega anulacji</small></td>';
                         echo '</tr>';
                     }
                     echo '</tbody></table>';
@@ -219,50 +189,10 @@ class TS_B2B_Services {
 
         if ( class_exists('TSME_Codes') && method_exists('TSME_Codes', 'void_code_by_id') ) {
             TSME_Codes::void_code_by_id( $code_id );
-
-            // KOREKTA FINANSOWA: Odejmujemy wartość anulowanej pozycji od sumy zamówienia
-            $order = wc_get_order( (int) $row['order_id'] );
-            if ( $order ) {
-                $item_id = $wpdb->get_var( $wpdb->prepare("SELECT order_item_id FROM {$table} WHERE id = %d", $code_id) );
-                $item    = $order->get_item( $item_id );
-                
-                if ( $item ) {
-                    // Pobieramy kwotę brutto pozycji do odjęcia
-                    $refund_amount = (float) $item->get_total() + (float) $item->get_total_tax();
-                    $new_total     = (float) $order->get_total() - $refund_amount;
-                    
-                    // Ustawiamy nową sumę i dodajemy notatkę do zamówienia
-                    $order->set_total( $new_total );
-                    $order->add_order_note( sprintf( 'B2B: Anulowano posiłek. Kwota zamówienia skorygowana o -%s zł.', number_format($refund_amount, 2) ) );
-                    $order->save();
-                }
-            }
         } else {
             $wpdb->update( $table, array( 'status' => 'void' ), array( 'id' => $code_id ) );
         }
 
         wp_send_json_success( array( 'message' => 'Usługa anulowana.' ) );
-    }
-    /**
-     * Wyświetla dopisek o anulowaniu przy nazwie produktu w widoku zamówienia.
-     */
-    public static function mark_cancelled_items_in_order( $item_name, $item ) {
-        // Działa tylko na stronie Moje Konto i w Adminie
-        if ( ! is_admin() && ! is_account_page() ) return $item_name;
-        
-        global $wpdb;
-        $table = $wpdb->prefix . 'tsme_meal_codes';
-        
-        // Sprawdzamy czy ten konkretny element zamówienia (order_item_id) jest unieważniony
-        $is_void = $wpdb->get_var( $wpdb->prepare(
-            "SELECT id FROM $table WHERE order_item_id = %d AND status = 'void' LIMIT 1",
-            $item->get_id()
-        ) );
-        
-        if ( $is_void ) {
-            $item_name .= ' <strong style="color:#d32f2f;">(ANULOWANO – KOREKTA B2B)</strong>';
-        }
-        
-        return $item_name;
     }
 }

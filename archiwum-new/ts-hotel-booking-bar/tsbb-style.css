@@ -1,0 +1,214 @@
+
+.tsbb-container {
+    max-width: 1100px;
+    margin: 20px auto;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.tsbb-tabs {
+    display: flex;
+    gap: 5px;
+    padding-left: 20px; 
+}
+
+.tsbb-tab {
+    background-color: rgba(0,0,0,0.6); 
+    color: #FFF;
+    border: none;
+    padding: 12px 24px;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 8px 8px 0 0;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    top: 1px; 
+}
+
+.tsbb-tab:hover {
+    background-color: rgba(0,0,0,0.8);
+}
+
+.tsbb-tab.active {
+    background-color: #fedb32; 
+    color: #111;
+    z-index: 2;
+}
+
+
+.tsbb-content-box {
+    background-color: #fedb32; 
+    padding: 20px 30px;
+    border-radius: 12px;
+  
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    position: relative;
+    z-index: 1;
+}
+
+
+.tsbb-desc {
+    margin: 0 0 15px 0;
+    font-size: 14px;
+    color: #333;
+    font-weight: 400;
+}
+
+.tsbb-title {
+    margin: 0 0 10px 0;
+    font-size: 20px;
+    color: #333;
+    font-weight: 700;
+}
+
+.tsbb-form-row {
+    display: flex;
+    gap: 8px; 
+    align-items: flex-end;
+}
+
+.tsbb-field {
+    flex: 1;
+    min-width: 140px;
+}
+
+.tsbb-label-small {
+    display: block;
+    font-size: 11px;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: #444;
+    margin-bottom: 6px;
+    margin-left: 12px; 
+}
+
+
+
+.tsbb-input-wrap {
+    position: relative;
+    
+}
+
+.tsbb-input-wrap select, 
+.tsbb-input-wrap input {
+    width: 100%;
+    height: 48px; 
+    border: 1px solid #E5E7EB; 
+    background: #FFF; 
+    padding: 0 20px; 
+    font-size: 14px;
+    color: #111;
+    border-radius: 50px; 
+    outline: none;
+    appearance: none;
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+
+.tsbb-input-wrap select:focus, 
+.tsbb-input-wrap input:focus {
+    border-color: #111; 
+}
+
+
+.tsbb-input-wrap select {
+    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23333%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+    background-repeat: no-repeat;
+    background-position: right 15px center; 
+    background-size: 10px;
+    padding-right: 35px;
+}
+
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+}
+
+
+
+.tsbb-btn {
+    height: 48px;
+    padding: 0 35px; 
+    background-color: #111;
+    color: #FFF;
+    font-weight: 700;
+    font-size: 13px;
+    text-transform: uppercase; 
+    letter-spacing: 1px; 
+    border: none;
+    border-radius: 50px; 
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+.tsbb-btn:hover {
+    background-color: #333;
+    transform: translateY(-1px); 
+}
+
+
+@media (max-width: 768px) {
+    .tsbb-form-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .tsbb-btn {
+        width: 100%;
+        margin-top: 10px;
+    }
+    .tsbb-tabs {
+        padding-left: 10px;
+    }
+    .tsbb-tab {
+        flex: 1;
+        text-align: center;
+        padding: 10px;
+        font-size: 13px;
+    }
+}
+
+
+
+
+.tsbb-input-wrap .nice-select {
+    float: none;
+    width: 100%;
+    height: 48px;
+    line-height: 46px; 
+    border-radius: 50px !important; 
+    border: 1px solid #E5E7EB;
+    background-color: #FFF;
+    padding-left: 20px;
+    font-size: 14px;
+    color: #111;
+    clear: none;
+    margin-bottom: 0;
+}
+
+
+.tsbb-input-wrap .nice-select:after {
+    right: 20px;
+    border-bottom: 2px solid #999;
+    border-right: 2px solid #999;
+    height: 8px;
+    width: 8px;
+}
+
+
+.tsbb-input-wrap .nice-select .list {
+    border-radius: 12px;
+    margin-top: 4px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    width: 100%;
+}
+
+
+.tsbb-input-wrap .nice-select .option {
+    line-height: 40px;
+    min-height: 40px;
+}
+
+
+.tsbb-input-wrap select {
+    display: none; 
+}

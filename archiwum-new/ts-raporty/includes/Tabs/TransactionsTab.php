@@ -138,17 +138,6 @@ final class TransactionsTab implements TabInterface {
 
             foreach ($order->get_items('line_item') as $item_id => $item) {
                 $product = $item->get_product();
-                
-                // NOWOŚĆ: Wykluczenie pozycji unieważnionych (void)
-                if ($product && (string)$product->get_meta('_tsme_enabled', true) === 'yes') {
-                    global $wpdb;
-                    $is_void = $wpdb->get_var($wpdb->prepare(
-                        "SELECT id FROM {$wpdb->prefix}tsme_meal_codes WHERE order_item_id = %d AND status = 'void' LIMIT 1",
-                        $item->get_id()
-                    ));
-                    if ($is_void) { continue; }
-                }
-
                 $product_id = $product ? $product->get_id() : (int)$item->get_product_id();
                 $product_name = $item->get_name();
 

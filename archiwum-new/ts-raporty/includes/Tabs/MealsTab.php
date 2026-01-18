@@ -145,14 +145,6 @@ final class MealsTab implements TabInterface {
                 $is_meal = (string)$product->get_meta('_tsme_enabled', true) === 'yes';
                 if (!$is_meal) { continue; }
 
-                // NOWOŚĆ: Wykluczenie pozycji anulowanych (void) z raportu
-                global $wpdb;
-                $void_check = $wpdb->get_var($wpdb->prepare(
-                    "SELECT id FROM {$wpdb->prefix}tsme_meal_codes WHERE order_item_id = %d AND status = 'void' LIMIT 1",
-                    $item->get_id()
-                ));
-                if ($void_check) { continue; }
-
                 $product_id = $product->get_id();
                 $product_name = $item->get_name();
 

@@ -46,16 +46,6 @@ final class DailyReporter {
                 $product = $item->get_product();
                 if (!$product) continue;
 
-                // NOWOŚĆ: Wykluczenie pozycji unieważnionych (void) z raportu dobowego
-                if ((string)$product->get_meta('_tsme_enabled', true) === 'yes') {
-                    global $wpdb;
-                    $is_void = $wpdb->get_var($wpdb->prepare(
-                        "SELECT id FROM {$wpdb->prefix}tsme_meal_codes WHERE order_item_id = %d AND status = 'void' LIMIT 1",
-                        $item->get_id()
-                    ));
-                    if ($is_void) { continue; }
-                }
-
                 $name = $item->get_name();
                 $qty  = (float)$item->get_quantity();
                 $val  = (float)$item->get_total() + (float)$item->get_total_tax();

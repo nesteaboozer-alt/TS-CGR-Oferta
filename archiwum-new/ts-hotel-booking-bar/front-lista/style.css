@@ -1,0 +1,213 @@
+.tsfl-wrapper {
+    max-width: 1200px;
+    margin: 40px auto;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+
+.tsfl-tabs {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 40px;
+}
+
+.tsfl-tab {
+    background-color: #F3F4F6;
+    border: 1px solid #E5E7EB;
+    border-radius: 50px;
+    padding: 10px 24px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.tsfl-tab.active {
+    background-color: #FFD700;
+    color: #111;
+    border-color: #FFD700;
+    box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+}
+
+
+.tsfl-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 30px;
+}
+
+
+.tsfl-main-grid .tsfl-card {
+    display: none;
+}
+
+
+.tsfl-main-grid .tsfl-card.tsfl-is-visible {
+    display: flex;
+}
+
+
+.tsfl-card {
+    background: #FFF;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid #E5E7EB;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.tsfl-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+}
+
+.tsfl-image-box {
+    position: relative;
+    width: 100%;
+    height: 220px;
+    background-color: #F3F4F6;
+    overflow: hidden;
+    border-bottom: 1px solid #E5E7EB;
+}
+
+.tsfl-image-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+
+.tsfl-content {
+    padding: 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+}
+
+.tsfl-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0 0 10px 0;
+    color: #111;
+    line-height: 1.4;
+    flex: 1;
+}
+
+.tsfl-price {
+    font-size: 15px;
+    color: #555;
+    font-weight: 500;
+    margin-bottom: 15px;
+}
+
+.tsfl-btn {
+    display: inline-block;
+    background-color: #FFD700;
+    color: #111 !important; 
+    font-weight: 700;
+    font-size: 13px;
+    text-transform: uppercase;
+    padding: 12px 20px;
+    border-radius: 50px;
+    text-decoration: none;
+    letter-spacing: 0.5px;
+    **transition: background 0.2s, color 0.2s;
+}
+
+.tsfl-btn:hover {
+    background-color: #FFC107 !important;
+    color: #000 !important; 
+}
+
+
+.tsfl-recommended-section {
+    background: #f9f9f9;
+    padding: 30px;
+    border-radius: 24px;
+    margin-bottom: 50px;
+    border: 1px solid #eee;
+}
+
+.tsfl-section-header {
+    text-align: center;
+    margin-bottom: 40px;
+    position: relative;
+}
+
+.tsfl-section-subtitle {
+    display: block;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: #888;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.tsfl-section-title {
+    font-size: 28px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #111;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+
+/* Subtelne linie po bokach napisu */
+.tsfl-section-title::before,
+.tsfl-section-title::after {
+    content: "";
+    height: 1px;
+    width: 60px;
+    background: #FFD700; /* Złoty akcent */
+    display: block;
+}
+
+
+.tsfl-card.is-featured {
+    border: 2px solid #FFD700;
+    display: flex !important;
+}
+
+
+.tsfl-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: #FFD700;
+    color: #111;
+    padding: 6px 14px;
+    border-radius: 50px;
+    font-size: 11px;
+    font-weight: 800;
+    z-index: 10;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+/* Poprawka scrolla dla desktopu (uwzględnia nav-bar) */
+@media (min-width: 1024px) {
+    #ts-oferta-filtry {
+        scroll-margin-top: 120px; /* Dostosuj tę wartość do wysokości Twojego menu */
+    }
+}
+
+/* Opcjonalnie dla mobile, jeśli tam też masz przyklejone menu */
+@media (max-width: 1023px) {
+    #ts-oferta-filtry {
+        scroll-margin-top: 80px; 
+    }
+}
+
+/* Włączenie płynnego przewijania dla całej strony (jeśli motyw go nie ma) */
+html {
+    scroll-behavior: smooth;
+}

@@ -288,8 +288,7 @@ class TSME_Admin_Codes {
                         // SELECT dla kilku typów posiłków naraz (IN (...))
                         $placeholders = implode( ',', array_fill( 0, count( $daily_meal_types ), '%s' ) );
 
-                        // Dodano warunek status != 'void'
-                        $sql = "SELECT * FROM {$codes_table} WHERE 1=1 AND status != 'void' AND object_label = %s AND meal_type IN ({$placeholders})";
+                        $sql = "SELECT * FROM {$codes_table} WHERE 1=1 AND object_label = %s AND meal_type IN ({$placeholders})";
 
                         // przygotowanie zapytania z dynamiczną liczbą parametrów
                         $prepare_args = array_merge( array( $sql, $daily_object ), $daily_meal_types );
@@ -429,18 +428,10 @@ class TSME_Admin_Codes {
                                     )
                                     : '-';
                                 ?>
-                                <?php 
-                                $is_void = ( $result['status'] === 'void' );
-                                $alert_class = $is_void ? 'tsme-alert--error' : 'tsme-alert--success';
-                                ?>
-                                <div class="tsme-alert <?php echo $alert_class; ?>">
+                                <div class="tsme-alert tsme-alert--success">
                                     <strong>
-                                        <?php if ( $is_void ) : ?>
-                                            ⚠️ <?php esc_html_e( 'KOD UNIEWAŻNIONY PRZEZ OPERATORA', 'ts-hotel-meals' ); ?>
-                                        <?php else : ?>
-                                            <?php esc_html_e( 'Kod znaleziony', 'ts-hotel-meals' ); ?>
-                                        <?php endif; ?>
-                                        : <?php echo esc_html( $display_code ); ?>
+                                        <?php esc_html_e( 'Kod znaleziony', 'ts-hotel-meals' ); ?>:
+                                        <?php echo esc_html( $display_code ); ?>
                                     </strong>
 
                                     <div class="tsme-alert__grid">

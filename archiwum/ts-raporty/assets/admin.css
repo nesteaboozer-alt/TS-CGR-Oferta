@@ -1,0 +1,20 @@
+.tsr-wrap { max-width: 1400px; }
+.tsr-filter-form { background: #fff; border: 1px solid #dcdcde; padding: 12px; border-radius: 6px; margin-top: 12px; }
+.tsr-filter-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.tsr-filter-group label { display:block; font-weight: 600; margin-bottom: 6px; }
+.tsr-filter-group input[type="text"], .tsr-filter-group input[type="date"], .tsr-filter-group select { width: 100%; }
+.tsr-filter-grid { align-items: end; }
+.tsr-filter-wide { grid-column: span 2; }
+.tsr-filter-actions { margin-top: 12px; display:flex; gap: 8px; }
+.tsr-meta-bar { display:flex; justify-content: space-between; align-items:center; margin: 12px 0; }
+.tsr-table-wrap { background: #fff; border: 1px solid #dcdcde; border-radius: 6px; padding: 0; overflow:auto; }
+.tsr-table-wrap table { margin: 0; }
+@media (max-width: 1200px) {
+  .tsr-filter-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .tsr-filter-wide { grid-column: span 2; }
+}
+@media (max-width: 600px) {
+  .tsr-filter-grid { grid-template-columns: 1fr; }
+  .tsr-filter-wide { grid-column: span 1; }
+}
+.tsr-filter-group select[multiple]{ min-height: 120px; }
