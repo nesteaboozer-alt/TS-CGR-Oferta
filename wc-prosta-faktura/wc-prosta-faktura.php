@@ -60,6 +60,11 @@ function wc_apple_v12_fields( $fields ) {
  */
 add_filter( 'woocommerce_checkout_posted_data', 'wc_apple_v12_sanitize_posted_data' );
 function wc_apple_v12_sanitize_posted_data( $data ) {
+    // Jeśli Partner B2B - nie czyścimy danych nawet gdy checkbox jest pusty
+    if ( is_user_logged_in() && in_array('b2b_partner', (array) wp_get_current_user()->roles ) ) {
+        return $data;
+    }
+
     // Sprawdzamy czy checkbox jest zaznaczony (1) czy nie (0/pusty)
     if ( empty( $data['billing_want_invoice'] ) ) {
         
