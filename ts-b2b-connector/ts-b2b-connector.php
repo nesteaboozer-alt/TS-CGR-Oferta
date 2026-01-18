@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name: TS B2B Connector
- * Description: Obsługa Partnerów B2B: Precyzyjna separacja ról, specjalne ceny i płatności odroczone.
- * Version: 1.1.0
+ * Description: Obsługa Partnerów B2B: Szczelna separacja produktów, płatności odroczone i zablokowany profil.
+ * Version: 2.4.0
  * Author: TechSolver
  */
 
@@ -11,157 +11,145 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 class TS_B2B_Connector {
 
     const B2B_ROLE = 'b2b_partner';
+    const META_B2B_ONLY = '_ts_b2b_only';
 
     public static function init() {
         register_activation_hook( __FILE__, array( __CLASS__, 'add_b2b_role' ) );
 
-        // Zarządzanie cenami w adminie
-        add_action( 'woocommerce_product_options_general_product_data', array( __CLASS__, 'add_b2b_price_field' ) );
-        add_action( 'woocommerce_product_after_variable_attributes', array( __CLASS__, 'add_b2b_variation_price_field' ), 10, 3 );
-        add_action( 'woocommerce_process_product_meta', array( __CLASS__, 'save_b2b_price_field' ) );
-        add_action( 'woocommerce_save_product_variation', array( __CLASS__, 'save_b2b_variation_price_field' ), 10, 2 );
+        // 1. ZARZĄDZANIE W ADMINIE
+        add_action( 'woocommerce_product_options_general_product_data', array( __CLASS__, 'add_b2b_visibility_field' ) );
+        add_action( 'woocommerce_process_product_meta', array( __CLASS__, 'save_b2b_visibility_field' ) );
 
-        // Silnik nadpisywania cen
-        // Silnik nadpisywania cen (rozszerzony o warianty i zakresy)
-        add_filter( 'woocommerce_product_get_price', array( __CLASS__, 'apply_b2b_price' ), 100, 2 );
-        add_filter( 'woocommerce_product_variation_get_price', array( __CLASS__, 'apply_b2b_price' ), 100, 2 );
-        add_filter( 'woocommerce_product_variation_get_regular_price', array( __CLASS__, 'apply_b2b_price' ), 100, 2 );
-        add_filter( 'woocommerce_variation_prices_price', array( __CLASS__, 'apply_b2b_price' ), 100, 2 );
-        add_filter( 'woocommerce_variation_prices_regular_price', array( __CLASS__, 'apply_b2b_price' ), 100, 2 );
-
-        // Wyłączenie cache cen wariantów dla B2B (kluczowe dla wariantów!)
-        add_filter( 'woocommerce_get_variation_prices_hash', array( __CLASS__, 'b2b_variation_prices_hash' ), 100, 1 );
-
-        // Hardening profilu B2B
-        add_filter( 'woocommerce_billing_fields', array( __CLASS__, 'lock_b2b_billing_fields' ), 100, 1 );
-        add_filter( 'woocommerce_checkout_fields', array( __CLASS__, 'lock_b2b_checkout_fields' ), 110, 1 );
-
-        // Zarządzanie danymi firmy w profilu użytkownika (Admin) - NOWOŚĆ
-        add_action( 'show_user_profile', array( __CLASS__, 'add_admin_user_b2b_fields' ) );
-        add_action( 'edit_user_profile', array( __CLASS__, 'add_admin_user_b2b_fields' ) );
-        add_action( 'user_new_form', array( __CLASS__, 'add_admin_user_b2b_fields' ) );
+        // 2. MUR PRODUKTOWY (WIDOCZNOŚĆ)
+        // Filtr dla zapytań o listy produktów (Sklep, Kategorie, Szukaj)
+        add_action( 'woocommerce_product_query', array( __CLASS__, 'filter_products_by_b2b_role' ), 999 );
         
-        add_action( 'personal_options_update', array( __CLASS__, 'save_admin_user_b2b_fields' ) );
-        add_action( 'edit_user_profile_update', array( __CLASS__, 'save_admin_user_b2b_fields' ) );
-        add_action( 'user_register', array( __CLASS__, 'save_admin_user_b2b_fields' ) );
+        // Zabezpieczenie przed wejściem bezpośrednim przez link (Single Product)
+        add_filter( 'woocommerce_product_is_visible', array( __CLASS__, 'check_final_visibility' ), 999, 2 );
 
-        // Rejestracja bramki płatności
+        // 3. PROFIL I DANE ZABLOKOWANE
+        add_filter( 'woocommerce_billing_fields', array( __CLASS__, 'lock_b2b_fields' ), 1000, 1 );
+        add_action( 'show_user_profile', array( __CLASS__, 'add_admin_user_fields' ) );
+        add_action( 'edit_user_profile', array( __CLASS__, 'add_admin_user_fields' ) );
+        add_action( 'edit_user_profile_update', array( __CLASS__, 'save_admin_user_fields' ) );
+        add_action( 'user_new_form', array( __CLASS__, 'add_admin_user_fields' ) );
+        add_action( 'user_register', array( __CLASS__, 'save_admin_user_fields' ) );
+
+        // 4. BRAMKA I PANEL ZARZĄDZANIA
         add_filter( 'woocommerce_payment_gateways', array( __CLASS__, 'register_gateway' ) );
+        add_action( 'wp_head', array( __CLASS__, 'b2b_checkout_styles' ), 30 );
 
-        // ETAP 3: Inicjalizacja panelu zarządzania usługami
         self::init_etap_3();
-
-        // ETAP 2: Style wymuszające widoczność pól B2B w Checkout
-        add_action( 'wp_head', array( __CLASS__, 'b2b_checkout_styles' ) );
-        
     }
 
     public static function add_b2b_role() {
         if ( ! get_role( self::B2B_ROLE ) ) {
-            add_role( self::B2B_ROLE, 'Partner B2B', array(
-                'read' => true,
-                'customer' => true,
-            ) );
+            add_role( self::B2B_ROLE, 'Partner B2B', array( 'read' => true, 'customer' => true ) );
         }
     }
 
-    public static function add_b2b_price_field() {
-        echo '<div class="options_group" style="background:#f0f9ff; border-left:4px solid #007cba; padding: 1px 0;">';
-        woocommerce_wp_text_input( array(
-            'id' => '_b2b_price',
-            'label' => 'Cena B2B (zł)',
-            'description' => 'Cena widoczna wyłącznie dla Partnerów B2B.',
-            'desc_tip' => true,
-            'type' => 'number',
-            'custom_attributes' => array( 'step' => '0.01', 'min' => '0' )
+    /**
+     * Pomocnicza funkcja: Sprawdza czy aktualny użytkownik jest Partnerem B2B.
+     */
+    public static function is_strictly_b2b() {
+        if ( ! is_user_logged_in() ) return false;
+        $user = wp_get_current_user();
+        return in_array( self::B2B_ROLE, (array) $user->roles );
+    }
+
+    public static function add_b2b_visibility_field() {
+        echo '<div class="options_group" style="background:#fff9e6; border-left:4px solid #ffba00; padding: 1px 0;">';
+        woocommerce_wp_checkbox( array(
+            'id'            => self::META_B2B_ONLY,
+            'label'         => 'Tylko dla B2B',
+            'description'   => 'Produkt będzie widoczny WYŁĄCZNIE dla zalogowanych Partnerów B2B.',
         ) );
         echo '</div>';
     }
 
-    public static function add_b2b_variation_price_field( $loop, $variation_data, $variation ) {
-        woocommerce_wp_text_input( array(
-            'id' => '_b2b_price[' . $loop . ']',
-            'label' => 'Cena B2B (zł)',
-            'value' => get_post_meta( $variation->ID, '_b2b_price', true ),
-            'type' => 'number',
-            'custom_attributes' => array( 'step' => '0.01', 'min' => '0' )
-        ) );
+    public static function save_b2b_visibility_field( $post_id ) {
+        $is_b2b = isset( $_POST[self::META_B2B_ONLY] ) ? 'yes' : 'no';
+        update_post_meta( $post_id, self::META_B2B_ONLY, $is_b2b );
     }
 
-    public static function save_b2b_price_field( $post_id ) {
-        if ( isset( $_POST['_b2b_price'] ) ) {
-            update_post_meta( $post_id, '_b2b_price', sanitize_text_field( $_POST['_b2b_price'] ) );
-        }
-    }
-
-    public static function save_b2b_variation_price_field( $variation_id, $i ) {
-        if ( isset( $_POST['_b2b_price'][$i] ) ) {
-            update_post_meta( $variation_id, '_b2b_price', sanitize_text_field( $_POST['_b2b_price'][$i] ) );
-        }
-    }
-
-    public static function apply_b2b_price( $price, $product ) {
-        if ( ! is_user_logged_in() ) return $price;
-        $user = wp_get_current_user();
-        if ( ! in_array( self::B2B_ROLE, (array) $user->roles ) ) return $price;
-
-        $b2b_price = get_post_meta( $product->get_id(), '_b2b_price', true );
-        return ( is_numeric( $b2b_price ) && $b2b_price > 0 ) ? $b2b_price : $price;
-    }
-
-/**
-     * Zmienia hash cen wariantów, aby WooCommerce generował osobny cache dla Partnerów B2B.
+    /**
+     * Filtracja zapytań o produkty (Sklep, Kategorie).
      */
-    public static function b2b_variation_prices_hash( $hash ) {
-        if ( is_user_logged_in() ) {
-            $user = wp_get_current_user();
-            if ( in_array( self::B2B_ROLE, (array) $user->roles ) ) {
-                $hash[] = 'b2b_partner_price';
+    public static function filter_products_by_b2b_role( $query ) {
+        if ( is_admin() || current_user_can( 'manage_options' ) ) return;
+
+        $meta_query = (array) $query->get( 'meta_query' );
+
+        if ( self::is_strictly_b2b() ) {
+            // PARTNER B2B: Widzi TYLKO produkty B2B
+            $meta_query[] = array(
+                'key'     => self::META_B2B_ONLY,
+                'value'   => 'yes',
+                'compare' => '='
+            );
+        } else {
+            // GOŚĆ / B2C: Widzi tylko produkty, które NIE są oznaczone jako B2B
+            $meta_query[] = array(
+                'relation' => 'OR',
+                array( 'key' => self::META_B2B_ONLY, 'value' => 'yes', 'compare' => '!=' ),
+                array( 'key' => self::META_B2B_ONLY, 'compare' => 'NOT EXISTS' )
+            );
+        }
+
+        $query->set( 'meta_query', $meta_query );
+    }
+
+    /**
+     * Zabezpieczenie strony pojedynczego produktu (Mur 404).
+     */
+    public static function check_final_visibility( $visible, $product_id ) {
+        if ( is_admin() || current_user_can( 'manage_options' ) ) return $visible;
+
+        $is_b2b_product = get_post_meta( $product_id, self::META_B2B_ONLY, true ) === 'yes';
+        $is_b2b_user = self::is_strictly_b2b();
+
+        // Jeśli user B2B -> widzi tylko produkty B2B
+        if ( $is_b2b_user ) return $is_b2b_product;
+
+        // Jeśli user B2C/Gość -> widzi tylko produkty nie-B2B
+        return ! $is_b2b_product;
+    }
+
+    public static function lock_b2b_fields( $fields ) {
+        if ( self::is_strictly_b2b() ) {
+            foreach ( array( 'billing_company', 'billing_nip', 'billing_email' ) as $f ) {
+                if ( isset( $fields[$f] ) ) $fields[$f]['custom_attributes']['readonly'] = 'readonly';
             }
         }
-        return $hash;
+        return $fields;
+    }
+
+    public static function add_admin_user_fields( $user ) {
+        $user_id = is_object($user) ? $user->ID : 0;
+        ?>
+        <h3>Dane Partnera B2B</h3>
+        <table class="form-table">
+            <tr><th><label>Firma</label></th><td><input type="text" name="billing_company" value="<?php echo esc_attr( get_user_meta( $user_id, 'billing_company', true ) ); ?>" class="regular-text" /></td></tr>
+            <tr><th><label>NIP</label></th><td><input type="text" name="billing_nip" value="<?php echo esc_attr( get_user_meta( $user_id, 'billing_nip', true ) ); ?>" class="regular-text" /></td></tr>
+        </table>
+        <?php
+    }
+
+    public static function save_admin_user_fields( $user_id ) {
+        if ( isset( $_POST['billing_company'] ) ) update_user_meta( $user_id, 'billing_company', sanitize_text_field( $_POST['billing_company'] ) );
+        if ( isset( $_POST['billing_nip'] ) ) update_user_meta( $user_id, 'billing_nip', sanitize_text_field( $_POST['billing_nip'] ) );
+    }
+
+    public static function b2b_checkout_styles() {
+        if ( is_checkout() && self::is_strictly_b2b() ) {
+            echo '<style>.apple-invoice-toggle, #billing_want_invoice_field { display: none !important; } #billing_company_field, #billing_nip_field { display: block !important; opacity: 0.9; } .woocommerce-checkout { background: #fff !important; }</style>';
+        }
     }
 
     public static function register_gateway( $gateways ) {
         $gateways[] = 'TS_B2B_Deferred_Gateway';
         return $gateways;
     }
-    /**
-     * Blokuje edycję kluczowych pól w panelu "Moje Konto" dla Partnera B2B.
-     */
-    public static function lock_b2b_billing_fields( $fields ) {
-        if ( ! is_user_logged_in() ) return $fields;
-        $user = wp_get_current_user();
-        if ( in_array( self::B2B_ROLE, (array) $user->roles ) ) {
-            $fields_to_lock = array( 'billing_company', 'billing_email', 'billing_nip' );
-            foreach ( $fields_to_lock as $field_id ) {
-                if ( isset( $fields[$field_id] ) ) {
-                    $fields[$field_id]['custom_attributes']['readonly'] = 'readonly';
-                    $fields[$field_id]['description'] = 'Dane zablokowane dla konta B2B. Skontaktuj się z administratorem, aby je zmienić.';
-                }
-            }
-        }
-        return $fields;
-    }
-
-    /**
-     * Blokuje edycję kluczowych pól podczas Checkoutu dla Partnera B2B.
-     */
-    public static function lock_b2b_checkout_fields( $fields ) {
-        if ( ! is_user_logged_in() ) return $fields;
-        $user = wp_get_current_user();
-        if ( in_array( self::B2B_ROLE, (array) $user->roles ) ) {
-            $fields_to_lock = array( 'billing_company', 'billing_email', 'billing_nip' );
-            foreach ( $fields_to_lock as $field_id ) {
-                if ( isset( $fields['billing'][$field_id] ) ) {
-                    $fields['billing'][$field_id]['custom_attributes']['readonly'] = 'readonly';
-                }
-            }
-        }
-        return $fields;
-    }
-
-    // --- ETAP 3: LOGIKA PANELU I ANULACJI (7 DNI) ---
 
     public static function init_etap_3() {
         add_filter( 'woocommerce_account_menu_items', array( __CLASS__, 'add_b2b_menu_item' ) );
@@ -171,9 +159,8 @@ class TS_B2B_Connector {
     }
 
     public static function add_b2b_menu_item( $items ) {
-        if ( is_user_logged_in() && in_array( self::B2B_ROLE, (array) wp_get_current_user()->roles ) ) {
-            $logout = $items['customer-logout'];
-            unset( $items['customer-logout'] );
+        if ( self::is_strictly_b2b() ) {
+            $logout = $items['customer-logout']; unset( $items['customer-logout'] );
             $items['b2b-services'] = 'Moje Usługi (B2B)';
             $items['customer-logout'] = $logout;
         }
@@ -186,165 +173,50 @@ class TS_B2B_Connector {
 
     public static function render_b2b_services_page() {
         global $wpdb;
-        $user_id = get_current_user_id();
         $table = $wpdb->prefix . 'tsme_meal_codes';
-
-        $services = $wpdb->get_results( $wpdb->prepare(
-            "SELECT * FROM $table WHERE order_id IN (
-                SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = '_customer_user' AND meta_value = %d
-            ) AND status != 'void' ORDER BY stay_from ASC",
-            $user_id
-        ), ARRAY_A );
-
+        $services = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM $table WHERE order_id IN (SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = '_customer_user' AND meta_value = %d) AND status != 'void' ORDER BY stay_from ASC", get_current_user_id() ), ARRAY_A );
         echo '<h3>Twoje zarezerwowane posiłki</h3>';
-        echo '<p>Możesz anulować posiłki maksymalnie na <strong>7 dni</strong> przed datą rozpoczęcia.</p>';
-
-        if ( ! $services ) {
-            echo '<p>Brak aktywnych usług.</p>';
-            return;
-        }
-
-        echo '<table class="woocommerce-orders-table shop_table shop_table_responsive my_account_orders">';
-        echo '<thead><tr><th>Usługa</th><th>Obiekt/Pokój</th><th>Data</th><th>Akcje</th></tr></thead><tbody>';
-
+        if ( ! $services ) { echo '<p>Brak aktywnych rezerwacji.</p>'; return; }
+        echo '<table class="shop_table"><thead><tr><th>Usługa</th><th>Obiekt</th><th>Data</th><th>Akcja</th></tr></thead><tbody>';
         foreach ( $services as $row ) {
-            $deadline = strtotime( $row['stay_from'] ) - ( 7 * DAY_IN_SECONDS );
-            $can_cancel = ( time() < $deadline );
-
-            echo '<tr><td>' . esc_html($row['meal_type']) . '</td><td>' . esc_html($row['object_label']) . '</td><td>' . esc_html($row['stay_from']) . '</td><td>';
-            if ( $can_cancel ) {
-                echo '<button class="button ts-b2b-cancel-btn" data-id="'.(int)$row['id'].'" data-item-id="'.(int)$row['order_item_id'].'">Anuluj</button>';
-            } else {
-                echo '<span style="color:#999; font-size:0.9em;">Po terminie</span>';
-            }
+            $can_cancel = ( strtotime( $row['stay_from'] ) - time() > 7 * DAY_IN_SECONDS );
+            echo '<tr><td>'.esc_html($row['meal_type']).'</td><td>'.esc_html($row['object_label']).'</td><td>'.esc_html($row['stay_from']).'</td><td>';
+            if ( $can_cancel ) echo '<button class="button ts-cancel" data-id="'.(int)$row['id'].'">Anuluj</button>';
+            else echo 'Brak możliwości';
             echo '</td></tr>';
         }
         echo '</tbody></table>';
         ?>
         <script>
-        jQuery(function($){
-            $('.ts-b2b-cancel-btn').on('click', function(){
-                if(!confirm('Anulować tę usługę?')) return;
-                var $btn = $(this);
-                $btn.prop('disabled', true).text('...');
-                $.post('<?php echo admin_url('admin-ajax.php'); ?>', {
-                    action: 'ts_b2b_cancel_meal',
-                    code_id: $btn.data('id'),
-                    item_id: $btn.data('item-id')
-                }, function(res) {
-                    if (res.success) $btn.closest('tr').fadeOut();
-                    else alert('Błąd: ' + res.data);
-                });
-            });
+        jQuery('.ts-cancel').on('click', function(){
+            var $b = jQuery(this); if(!confirm('Anulować?')) return;
+            $b.prop('disabled', true);
+            jQuery.post('<?php echo admin_url('admin-ajax.php'); ?>', { action: 'ts_b2b_cancel_meal', code_id: $b.data('id') }, function(){ location.reload(); });
         });
         </script>
         <?php
     }
 
     public static function ajax_handle_cancellation() {
-        if ( ! is_user_logged_in() ) wp_send_json_error('Brak logowania');
-        $code_id = isset($_POST['code_id']) ? absint($_POST['code_id']) : 0;
-        if ( $code_id && class_exists('TSME_Codes') ) {
-            TSME_Codes::void_code_by_id( $code_id );
-            wp_send_json_success();
-        }
-        wp_send_json_error('Błąd anulacji');
-    }
-
-    /**
-     * Wyświetla pola NIP i Firma w edycji i dodawaniu użytkownika.
-     */
-    public static function add_admin_user_b2b_fields( $user ) {
-        // Pobieramy wartości jeśli edytujemy istniejącego usera
-        $user_id = is_object($user) ? $user->ID : 0;
-        $company = $user_id ? get_user_meta( $user_id, 'billing_company', true ) : '';
-        $nip     = $user_id ? get_user_meta( $user_id, 'billing_nip', true ) : '';
-        
-        // Nagłówek sekcji
-        $title = is_object($user) ? 'Dane Partnera B2B' : 'Dane Firmowe (B2B)';
-        ?>
-        <h3><?php echo esc_html($title); ?></h3>
-        <table class="form-table">
-            <tr>
-                <th><label for="billing_company">Nazwa firmy</label></th>
-                <td>
-                    <input type="text" name="billing_company" id="billing_company" value="<?php echo esc_attr( $company ); ?>" class="regular-text" />
-                </td>
-            </tr>
-            <tr>
-                <th><label for="billing_nip">NIP</label></th>
-                <td>
-                    <input type="text" name="billing_nip" id="billing_nip" value="<?php echo esc_attr( $nip ); ?>" class="regular-text" />
-                    <p class="description">Wprowadź NIP firmy dla rozliczeń zbiorczych B2B.</p>
-                </td>
-            </tr>
-        </table>
-        <?php
-    }
-
-    /**
-     * Zapisuje dane NIP i Firma z profilu admina.
-     */
-    public static function save_admin_user_b2b_fields( $user_id ) {
-        if ( ! current_user_can( 'edit_user', $user_id ) ) {
-            return false;
-        }
-
-        if ( isset( $_POST['billing_company'] ) ) {
-            update_user_meta( $user_id, 'billing_company', sanitize_text_field( $_POST['billing_company'] ) );
-        }
-        if ( isset( $_POST['billing_nip'] ) ) {
-            update_user_meta( $user_id, 'billing_nip', sanitize_text_field( $_POST['billing_nip'] ) );
-        }
-    }
-    /**
-     * Wymusza widoczność NIP i Firmy oraz ukrywa zbędny checkbox faktury dla Partnera B2B.
-     */
-    public static function b2b_checkout_styles() {
-        if ( is_checkout() && is_user_logged_in() && in_array( self::B2B_ROLE, (array) wp_get_current_user()->roles ) ) {
-            echo '<style>
-                .apple-invoice-toggle, #billing_want_invoice_field { display: none !important; }
-                #billing_company_field, #billing_nip_field { display: block !important; opacity: 0.85; }
-                #billing_company_field label .optional-text, #billing_nip_field label .optional-text { display: none !important; }
-            </style>';
-        }
+        if ( class_exists('TSME_Codes') ) TSME_Codes::void_code_by_id( absint($_POST['code_id']) );
+        wp_send_json_success();
     }
 }
 
-
-
-
 add_action( 'plugins_loaded', function() {
     if ( ! class_exists( 'WC_Payment_Gateway' ) ) return;
-
     class TS_B2B_Deferred_Gateway extends WC_Payment_Gateway {
         public function __construct() {
-            $this->id = 'ts_b2b_deferred';
-            $this->method_title = 'Płatność B2B (Faktura Zbiorcza)';
-            $this->title = 'Na podstawie faktury (płatność odroczona)';
-            $this->has_fields = false;
-            $this->init_form_fields();
-            $this->init_settings();
+            $this->id = 'ts_b2b_deferred'; $this->method_title = 'Płatność B2B'; $this->title = 'Na podstawie faktury (B2B)';
+            $this->init_form_fields(); $this->init_settings();
             add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options' ) );
         }
-
-        public function init_form_fields() {
-            $this->form_fields = array( 'enabled' => array( 'title' => 'Włącz/Wyłącz', 'type' => 'checkbox', 'default' => 'yes' ) );
-        }
-
-        public function is_available() {
-            if ( ! is_user_logged_in() ) return false;
-            return in_array( TS_B2B_Connector::B2B_ROLE, (array) wp_get_current_user()->roles );
-        }
-
+        public function init_form_fields() { $this->form_fields = array('enabled' => array('title' => 'Włącz', 'type' => 'checkbox', 'default' => 'yes')); }
+        public function is_available() { return TS_B2B_Connector::is_strictly_b2b(); }
         public function process_payment( $order_id ) {
-            $order = wc_get_order( $order_id );
-            $order->update_status( 'completed', 'Zamówienie Partnera B2B - faktura zbiorcza.' );
-            $order->add_meta_data( '_is_b2b_order', 'yes', true );
-            $order->add_meta_data( '_b2b_deferred_payment', 'yes', true );
-            $order->save();
-            WC()->cart->empty_cart();
-            return array( 'result' => 'success', 'redirect' => $this->get_return_url( $order ) );
+            $order = wc_get_order( $order_id ); $order->update_status( 'completed', 'B2B: Faktura zbiorcza.' );
+            $order->add_meta_data( '_is_b2b_order', 'yes', true ); $order->save();
+            WC()->cart->empty_cart(); return array( 'result' => 'success', 'redirect' => $this->get_return_url( $order ) );
         }
     }
 }, 11 );
