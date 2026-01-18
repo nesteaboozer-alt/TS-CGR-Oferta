@@ -14,9 +14,7 @@ class TS_B2B_Services {
         if ( TS_B2B_Core::is_strictly_b2b() ) {
             $logout = $items['customer-logout'] ?? null;
             if ( $logout !== null ) unset( $items['customer-logout'] );
-
             $items['b2b-services'] = 'Moje Usługi (B2B)';
-
             if ( $logout !== null ) $items['customer-logout'] = $logout;
         }
         return $items;
@@ -29,20 +27,19 @@ class TS_B2B_Services {
     public static function render_b2b_services_page() {
         global $wpdb;
         $table = $wpdb->prefix . 'tsme_meal_codes';
+        
+        // Sprawdź czy tabela istnieje, aby uniknąć błędów
+        if($wpdb->get_var("SHOW TABLES LIKE '$table'") != $table) {
+            echo '<p>System rezerwacji nie jest skonfigurowany.</p>';
+            return;
+        }
 
-        $services = $wpdb->get_results(
-            $wpdb->prepare(
-                "SELECT * FROM $table
-                 WHERE order_id IN (
-                   SELECT post_id FROM {$wpdb->postmeta}
-                   WHERE meta_key = '_customer_user' AND meta_value = %d
-                 )
-                 AND status != 'void'
-                 ORDER BY stay_from ASC",
-                get_current_user_id()
-            ),
-            ARRAY_A
-        );
+        $services = $wpdb->get_results( $wpdb->prepare(
+            "SELECT * FROM $table WHERE order_id IN (
+                SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = '_customer_user' AND meta_value = %d
+            ) AND status != 'void' ORDER BY stay_from ASC",
+            get_current_user_id()
+        ), ARRAY_A );
 
         echo '<h3>Twoje zarezerwowane posiłki</h3>';
         if ( ! $services ) { echo '<p>Brak aktywnych rezerwacji.</p>'; return; }
