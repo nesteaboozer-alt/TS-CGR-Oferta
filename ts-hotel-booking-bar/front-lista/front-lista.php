@@ -77,6 +77,9 @@ class TSBB_Front_List {
                     </div>
                     <div class="tsfl-grid tsfl-featured-grid">
                         <?php foreach ( $featured_products as $product ) : 
+                            // Silny bezpiecznik widoczności B2B/B2C
+                            if ( ! $product->is_visible() ) continue;
+
                             $badge_text = get_post_meta( $product->get_id(), '_ts_front_badge', true );
                             $custom_label = get_post_meta( $product->get_id(), '_ts_front_price_label', true );
                             $price_html = $custom_label ? '<span class="tsfl-custom-label">' . esc_html($custom_label) . '</span>' : $product->get_price_html();
@@ -118,6 +121,9 @@ class TSBB_Front_List {
                 <?php if ( ! empty( $products ) ) : ?>
                     <?php foreach ( $products as $product ) : ?>
                         <?php 
+                            // Silny bezpiecznik widoczności B2B/B2C
+                            if ( ! $product->is_visible() ) continue;
+
                             $terms = get_the_terms( $product->get_id(), 'product_cat' );
                             $cat_slugs = ($terms && !is_wp_error($terms)) ? wp_list_pluck($terms, 'slug') : array();
                             $cats_string = implode( ',', $cat_slugs );
