@@ -41,9 +41,13 @@ class TS_B2B_Core {
         add_filter( 'woocommerce_checkout_fields', array( __CLASS__, 'cleanup_checkout_fields_for_b2b' ), 9999, 1 );
         add_filter( 'woocommerce_checkout_get_value', array( __CLASS__, 'force_b2b_checkout_prefill_values' ), 9999, 2 );
         add_filter( 'woocommerce_available_payment_gateways', array( __CLASS__, 'restrict_payment_gateways_for_b2b' ), 9999, 1 );
-        
-        // CSS/JS
-        add_action( 'wp_head', array( __CLASS__, 'b2b_checkout_force_show_css' ), 9999 );
+
+// Wymuszenie powiązania zamówienia z userem (B2B) – żeby wc_get_orders działało zawsze
+add_action( 'woocommerce_checkout_create_order', array( __CLASS__, 'force_b2b_customer_id_on_order' ), 10, 2 );
+
+// CSS/JS
+add_action( 'wp_head', array( __CLASS__, 'b2b_checkout_force_show_css' ), 9999 );
+
         add_action( 'wp_footer', array( __CLASS__, 'inject_b2b_readonly_js' ), 30 );
     }
 
@@ -192,6 +196,17 @@ class TS_B2B_Core {
         }
         return $gateways;
     }
+public static function force_b2b_customer_id_on_order( $order, $data ) {
+    // tylko dla B2B
+    if ( ! self::is_strictly_b2b() ) return;
+
+    $user_id = get_current_user_id();
+    if ( ! $user_id ) return;
+
+    if ( (int) $order->get_customer_id() !== (int) $user_id ) {
+        $order->set_customer_id( $user_id );
+    }
+}
 
     public static function filter_products_globally( $query ) {
         if ( is_admin() || current_user_can( 'manage_options' ) ) return;
