@@ -50,6 +50,10 @@ class TS_B2B_Connector {
 
         // ETAP 3: Inicjalizacja panelu zarządzania usługami
         self::init_etap_3();
+
+        // ETAP 2: Style wymuszające widoczność pól B2B w Checkout
+        add_action( 'wp_head', array( __CLASS__, 'b2b_checkout_styles' ) );
+        
     }
 
     public static function add_b2b_role() {
@@ -291,6 +295,18 @@ class TS_B2B_Connector {
         }
         if ( isset( $_POST['billing_nip'] ) ) {
             update_user_meta( $user_id, 'billing_nip', sanitize_text_field( $_POST['billing_nip'] ) );
+        }
+    }
+    /**
+     * Wymusza widoczność NIP i Firmy oraz ukrywa zbędny checkbox faktury dla Partnera B2B.
+     */
+    public static function b2b_checkout_styles() {
+        if ( is_checkout() && is_user_logged_in() && in_array( self::B2B_ROLE, (array) wp_get_current_user()->roles ) ) {
+            echo '<style>
+                .apple-invoice-toggle, #billing_want_invoice_field { display: none !important; }
+                #billing_company_field, #billing_nip_field { display: block !important; opacity: 0.85; }
+                #billing_company_field label .optional-text, #billing_nip_field label .optional-text { display: none !important; }
+            </style>';
         }
     }
 }

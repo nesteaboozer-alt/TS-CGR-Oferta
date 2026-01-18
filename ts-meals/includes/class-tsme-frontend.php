@@ -290,6 +290,29 @@ class TSME_Frontend {
                 }
                 $current_ts = strtotime('+1 day', $current_ts);
             }
+            // ETAP 2 B2B: Jeśli to Partner B2B i ma przypisaną cenę specjalną, używamy jej zamiast macierzy
+            if ( is_user_logged_in() ) {
+                $user = wp_get_current_user();
+                if ( in_array( 'b2b_partner', (array) $user->roles ) ) {
+                    $b2b_price = get_post_meta( $product_id, '_b2b_price', true );
+                    if ( is_numeric( $b2b_price ) && $b2b_price > 0 ) {
+                        // Obliczamy cenę B2B mnożąc ją przez liczbę dni (meals)
+                        $meal_type = strtolower( (string) get_post_meta( $product_id, TSME_Admin_Product::META_MEAL_TYPE, true ) );
+                        $days = 0;
+                        $c_ts = $start_ts;
+                        while ( $c_ts <= $end_ts ) {
+                            $served = false;
+                            if ( strpos( $meal_type, 'sniada' ) !== false ) { if($c_ts > $start_ts && $c_ts <= $end_ts) $served = true; }
+                            elseif ( strpos( $meal_type, 'obiad' ) !== false ) { if($c_ts >= $start_ts && $c_ts < $end_ts) $served = true; }
+                            else { $served = true; }
+                            if($served) $days++;
+                            $c_ts = strtotime('+1 day', $c_ts);
+                        }
+                        $total_price = $b2b_price * $days * ((int)$data['adults'] + (int)$data['children']);
+                    }
+                }
+            }
+
             $cart_item['data']->set_price( $total_price );
         }
     }
